@@ -19,12 +19,12 @@ resource "local_file" "private_key" {
  content = tls_private_key.webserver_private_key.private_key_pem
  filename = "webserver_key.pem"
  file_permission = 0400
-
 }
 
 
+
 resource "aws_key_pair" "webserver_key" {
- key_name = "webserver"
+ key_name = "webserver_key"
  public_key = tls_private_key.webserver_private_key.public_key_openssh
 
 }
@@ -75,15 +75,17 @@ resource "aws_instance" "web" {
 
 provisioner "remote-exec" {
     inline = [
+      "sudo yum update -y",
+      "sudo yum install java-1.8.0-openjdk -y",
       "sudo yum install wget git -y",
       "sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo",
       "sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key",
-      "yum install jenkins -y",
-      "sudo systemctl start jenkins",
-      "sudo systemctl enable jenkins",
-      "sudo cat /var/lib/jenkins/secrets/initialAdminPassword",
+      "sudo yum install jenkins -y",
+      "sudo service jenkins start",
+      "sudo chkconfig jenkins on",
     ]
       
+
 
   connection {
   type     = "ssh"
@@ -98,6 +100,32 @@ provisioner "remote-exec" {
   }
 
  }
+
+
+resource "null_resource" "nulllocal1"  {
+
+	provisioner "local-exec" {
+	    command = "explorer http://${aws_instance.web.public_ip}:8080/"
+	    interpreter = ["PowerShell", "-Command"]
+  	}
+
+  	provisioner "remote-exec" {
+    inline = [
+      "sleep 20",
+      "sudo cat /var/lib/jenkins/secrets/initialAdminPassword",
+    ]
+      
+
+
+  connection {
+  type     = "ssh"
+  user     = "ec2-user"
+  private_key = tls_private_key.webserver_private_key.private_key_pem
+  host     = aws_instance.web.public_ip
+}
+  }
+}
+
 
 
 output "myos_ip" {

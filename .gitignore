@@ -1,8 +1,3 @@
---10:56:04--  https://www.gitignore.io/api/java
-           => `java'
-Resolving www.gitignore.io... done.
-Connecting to www.gitignore.io[104.31.83.143]:443... connected.
-
-Unable to establish SSL connection.
-
-Unable to establish SSL connection.
+**/.terraform/**
+*/**/.tfvars
+*.tfstate

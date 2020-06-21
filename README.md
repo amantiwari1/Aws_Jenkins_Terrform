@@ -99,15 +99,17 @@ resource "aws_instance" "web" {
 
 provisioner "remote-exec" {
     inline = [
+      "sudo yum update -y",
+      "sudo yum install java-1.8.0-openjdk -y",
       "sudo yum install wget git -y",
       "sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo",
       "sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key",
-      "yum install jenkins -y",
-      "sudo systemctl start jenkins",
-      "sudo systemctl enable jenkins",
-      "sudo cat /var/lib/jenkins/secrets/initialAdminPassword",
+      "sudo yum install jenkins -y",
+      "sudo service jenkins start",
+      "sudo chkconfig jenkins on",
     ]
       
+
 
   connection {
   type     = "ssh"
@@ -125,9 +127,37 @@ provisioner "remote-exec" {
 
 ```
 
-### All Output 
+### Open Jenkins Url 
+```
+resource "null_resource" "nulllocal1"  {
+
+	provisioner "local-exec" {
+	    command = "explorer http://${aws_instance.web.public_ip}:8080/"
+	    interpreter = ["PowerShell", "-Command"]
+  	}
+
+  	provisioner "remote-exec" {
+    inline = [
+      "sleep 20",
+      "sudo cat /var/lib/jenkins/secrets/initialAdminPassword",
+    ]
+      
+
+
+  connection {
+  type     = "ssh"
+  user     = "ec2-user"
+  private_key = tls_private_key.webserver_private_key.private_key_pem
+  host     = aws_instance.web.public_ip
+}
+  }
+}
 ```
 
+
+
+### All Output 
+```
 output "myos_ip" {
   value = aws_instance.web.public_ip
 }
