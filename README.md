@@ -1,8 +1,6 @@
 # aws_terraform
 
-## 	Starting The Website in aws and terraform 
-
-![Create repository](images/ShooterScreenshot-0-15-06-20.png)
+## start the jenkins website using ec2
 
 ### First create  terraform file
 ```
