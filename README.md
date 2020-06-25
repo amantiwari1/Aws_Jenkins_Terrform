@@ -169,6 +169,10 @@ output "myos_ip" {
 ```
 cd I:\aman\terra
 ```
+### test 
+```
+terraform validate
+```
 ### then Run it
 ```
 terraform apply
